@@ -1,6 +1,8 @@
 package com.link.qwiklink.controller;
 
+import com.link.qwiklink.auth.jwt.AuthResponse;
 import com.link.qwiklink.dtos.ResponseBody;
+import com.link.qwiklink.dtos.SignInRequest;
 import com.link.qwiklink.dtos.SignUpRequest;
 import com.link.qwiklink.dtos.UserCreatedDto;
 import com.link.qwiklink.models.User;
@@ -22,7 +24,9 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<ResponseBody<UserCreatedDto>> createUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+    public ResponseEntity<ResponseBody<UserCreatedDto>> createUser(
+            @Valid @RequestBody SignUpRequest signUpRequest
+    ) {
         User created = userService.createUser(signUpRequest);
 
         UserCreatedDto data = new UserCreatedDto(
@@ -35,5 +39,15 @@ public class AuthController {
                 ResponseBody.created("Registration successfully", data);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
+    @PostMapping("/signin")
+    public ResponseEntity<ResponseBody<AuthResponse>> signIn(
+            @Valid @RequestBody SignInRequest signInRequest
+    ) {
+        AuthResponse token = userService.authenticateUser(signInRequest);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ResponseBody.ok("Authentication Successful", token));
     }
 }
